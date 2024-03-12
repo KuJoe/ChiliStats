@@ -22,19 +22,19 @@ Installation
 
 1. Unpack the "chilistats.zip" archive.
 
-2. Open the file "chilistats/config.php" with a text editor and set the settings.
+2. Open the file "chilistats/config.php" with a text editor and set the settings.  
    !! The database settings MUST be set !!	
 
-3. Upload the complete "chilistats" folder via FTP to your web server..
+3. Upload the complete "chilistats" folder via FTP to your web server.
 
-4. Call the "install.php" in your web browser. e.g. www.yourpage.com/chilistats/install.php
+4. Call the "install.php" in your web browser. e.g. www.yourpage.com/chilistats/install.php  
     All points must be positive (green).
 
-5. The following code must be included on each page:
+5. The following code must be included on each page:  
 
-<script type="text/javascript">
+```<script type="text/javascript">
 	document.write('<img src="chilistats/counter.php?ref=' + escape(document.referrer) + '" border="0">')
 </script>
-<noscript><img src="chilistats/counter.php" border="0"></noscript>
+<noscript><img src="chilistats/counter.php" border="0"></noscript>```
 
 6. Finished.
