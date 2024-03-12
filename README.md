@@ -32,9 +32,11 @@ Installation
 
 5. The following code must be included on each page:  
 
-```<script type="text/javascript">
+```
+<script type="text/javascript">
 	document.write('<img src="chilistats/counter.php?ref=' + escape(document.referrer) + '" border="0">')
 </script>
-<noscript><img src="chilistats/counter.php" border="0"></noscript>```
+<noscript><img src="chilistats/counter.php" border="0"></noscript>
+```
 
 6. Finished.
