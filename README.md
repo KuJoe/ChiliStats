@@ -27,7 +27,7 @@ Installation
 
 3. Upload the complete "chilistats" folder via FTP to your web server.
 
-4. Call the "install.php" in your web browser. e.g. www.yourpage.com/chilistats/install.php  
+4. Call the "install.php" in your web browser. e.g. https://example.com/chilistats/install.php  
     All points must be positive (green).
 
 5. The following code must be included on each page:  
