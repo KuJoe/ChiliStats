@@ -46,13 +46,13 @@ $oldentries=7; // delete Visitor infos after x days (7 => 7 days)
 try {
 	$conn = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
 	$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  } catch(PDOException $e) {
+} catch(PDOException $e) {
 	die("Connection failed: " . $e->getMessage());
-  }
-  
-  // Check if database selection was successful
-  if (!$conn) {
+}
+
+// Check if database selection was successful
+if (!$conn) {
 	echo "The database '$db_name' was not found!";
 	exit;
-  }
+}
 ?>

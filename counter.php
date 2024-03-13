@@ -16,7 +16,7 @@
 	at their own risk of the operator.
 	-------------------------------------------------------
 */
-
+define('ChiliAllowed', TRUE);
 require_once('config.php');
 require_once('functions.php');
 
@@ -41,7 +41,7 @@ if ($_GET["ref"] <> "" ) {
 	// from php
 	$referer=$_SERVER['HTTP_REFERER'];
 	$page=$_SERVER['PHP_SELF']; // with include via php		
-	} 	
+} 	
 // cleanup
 if (basename($page) == basename(__FILE__)) $page="" ; // count not counter.php
 

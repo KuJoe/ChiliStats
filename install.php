@@ -33,7 +33,7 @@ try {
             `user` int(10) NOT NULL default '0',
             `view` int(10) NOT NULL default '0',
             PRIMARY KEY  (`day_id`)
-        ) TYPE=MyISAM COMMENT='ChilliStats Days'",
+        )",
 
         'visitors' => "CREATE TABLE `".$db_prefix."visitors` (
             `visitor_id` int(11) NOT NULL auto_increment,
@@ -41,7 +41,7 @@ try {
             `time` int(20) NOT NULL default '0',
             `online` int(20) NOT NULL default '0',
             PRIMARY KEY  (`visitor_id`)
-        ) TYPE=MyISAM COMMENT='ChiliStats Visitors'",
+        )",
 
 		'languages' => "CREATE TABLE `".$db_prefix."languages` (
             `lang_id` int(11) NOT NULL auto_increment,
@@ -49,7 +49,7 @@ try {
             `language` int(2) NOT NULL default '',
             `view` int(10) NOT NULL default '0',
             PRIMARY KEY  (`lang_id`)
-        ) TYPE=MyISAM COMMENT='ChiliStats Languages'",
+        )",
 
 		'pages' => "CREATE TABLE `".$db_prefix."pages` (
             `page_id` int(11) NOT NULL auto_increment,
@@ -57,7 +57,22 @@ try {
             `page` var(255) NOT NULL default '',
             `view` int(20) NOT NULL default '0',
             PRIMARY KEY  (`page_id`)
-        ) TYPE=MyISAM COMMENT='ChiliStats Pages'"
+        )",
+
+        'staff' => "CREATE TABLE `".$db_prefix."staff` (
+            `staff_id` int(11) NOT NULL auto_increment,
+            `seckey` varchar(12) NOT NULL default '',
+            `user_email` varchar(64) NOT NULL default '',
+            `user_password_hash` varchar(255) NOT NULL default '0',
+            `user_active` tinyint(1) NOT NULL default '0',
+            `user_rememberme_token` varchar(64) NOT NULL default '0',
+            `user_ip` varchar(45) NOT NULL default '0',
+            `user_lastlogin` timestamp NULL default NULL,
+            `user_failed_logins` tinyint(1) NOT NULL default '0',
+            `user_locked` datetime NOT NULL default '1970-01-01 00:00:01',
+            `unique_token` varchar(32) NULL default NULL,
+            PRIMARY KEY  (`staff_id`)
+        )"
 		
     ];
 
