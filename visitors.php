@@ -5,77 +5,36 @@ require_once('config.php');
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<title>ChiliStats - Visitors</title>
+<title>ChiliStats(Revived) - Visitors</title>
 <link href="chilistats.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
 <div id="container">
-<div id="logo"><h1>ChiliStats</h1></div>
+<div id="logo"><h1>ChiliStats(Revived)</h1></div>
 <div id="menu">
  <ul>
-  <li><a href="stats.php">OneView</a></li>
+  <li><a href="stats.php">Dashboard</a></li>
   <li><a href="visitors.php">Visitors</a></li>
   <li><a href="history.php">History</a></li> 
  </ul>
 </div>
   <div class="middle">
-    <h3>Referrer Top10</h3>
-	<table width="100%" border="0" cellpadding="5" cellspacing="0">
-	<tr>
-      <td width="30"><strong>Nr.</strong></td>
-      <td width="280"><strong>Referrer</strong></td>
-      <td width="120"><strong>Prozent</strong></td>
-    </tr>
-    <?php
-	// gesammt Referrer
-	$abfrage = $conn->prepare("SELECT SUM(view) FROM ".$db_prefix."Referer");
-	$abfrage->execute();
-	$ges_referer = $abfrage->fetchColumn();
-
-	// Top Refferrer
-	$nr = 1;
-	$abfrage = $conn->prepare("SELECT referer, SUM(view) AS views FROM ".$db_prefix."Referer GROUP BY referer ORDER BY views DESC LIMIT 0, 10");
-	$abfrage->execute();
-	while($row = $abfrage->fetch(PDO::FETCH_ASSOC))
-	{
-		$referer = htmlspecialchars($row['referer']);
-		if(strlen($referer) > 35) {
-			$shortreferer = substr($referer,0,30)."<a href=\"#\" title=\"$referer\">...</a>";
-		} else {
-			$shortreferer = $referer;
-		}
-		$views = $row['views'];
-		$prozent = (100/$ges_referer)*$views;
-		if ($prozent < 0.1 ) $prozent = round($prozent,2);
-		else $prozent = round($prozent,1);
-		$bar_width = round((100/$ges_referer)*$views);
-		echo"   <tr>\n";
-		echo"       <td>$nr</td>\n";
-		echo"       <td>$shortreferer</td>\n";
-		echo"       <td nowrap><div class=\"vbar\" style=\"width:".$bar_width."px;\" title=\"$views Visitors\" >&nbsp;$prozent%</div></td>\n";
-		echo"   </tr>\n";
-		$nr++;
-	}
-	?>
-    </table>
-  </div>
-  <div class="middle">
-    <h3>Pages Top10</h3>
+  	<h3>Top 10 Pages</h3>
 	<table width="100%" cellpadding="5" cellspacing="0">
   	<tr>
-      <td width="30"><strong>Nr.</strong></td>
+      <td width="30"><strong>#</strong></td>
       <td width="280"><strong>Page</strong></td>
-      <td width="120"><strong>Prozent</strong></td>
+      <td width="120"><strong>%</strong></td>
   	</tr>
 	<?php
-	// gesammt Pages
-	$abfrage = $conn->prepare("SELECT SUM(view) FROM ".$db_prefix."Page");
+	// Total Pages
+	$abfrage = $conn->prepare("SELECT SUM(view) FROM ".$db_prefix."pages");
 	$abfrage->execute();
 	$ges_page = $abfrage->fetchColumn();
 
 	// Top Pages
 	$nr = 1;
-	$abfrage = $conn->prepare("SELECT page, SUM(view) AS views FROM ".$db_prefix."Page GROUP BY page ORDER BY views DESC LIMIT 0, 10");
+	$abfrage = $conn->prepare("SELECT page, SUM(view) AS views FROM ".$db_prefix."pages GROUP BY page ORDER BY views DESC LIMIT 0, 10");
 	$abfrage->execute();
 	while($row = $abfrage->fetch(PDO::FETCH_ASSOC))
 	{
@@ -86,73 +45,31 @@ require_once('config.php');
 			$shortpage = $page;
 		}
 		$views = $row['views'];
-		$prozent = (100/$ges_page)*$views;
-		if ($prozent < 0.1 ) $prozent = round($prozent,2);
-		else $prozent = round($prozent,1);
+		$percent = (100/$ges_page)*$views;
+		if ($percent < 0.1 ) $percent = round($percent,2);
+		else $percent = round($percent,1);
 		$bar_width = round((100/$ges_page)*$views);
 		echo"   <tr>\n";
 		echo"       <td>$nr</td>\n";
 		echo"       <td>$shortpage</td>\n";
-		echo"       <td nowrap><div class=\"vbar\" style=\"width:".$bar_width."px;\" title=\"$views Visits\" >&nbsp;$prozent%</div></td>\n";
+		echo"       <td nowrap><div class=\"vbar\" style=\"width:".$bar_width."px;\" title=\"$views Visits\" >&nbsp;$percent%</div></td>\n";
 		echo"   </tr>\n";
 		$nr++;
 	}
 	?>
 	</table>
   </div>
-  <div style="clear:both"></div>
-   <div class="middle">
-    <h3>Keywords Top10</h3>
-	<table width="100%" border="0" cellpadding="5" cellspacing="0">
-      <tr>
-        <td width="30"><strong>Nr.</strong></td>
-        <td width="280"><strong>Keywords</strong></td>
-        <td width="120"><strong>Prozent</strong></td>
-      </tr>
-	<?php
-	// gesammt keywords
-	$abfrage = $conn->prepare("SELECT SUM(view) FROM ".$db_prefix."Keyword");
-	$abfrage->execute();
-	$ges_keyword = $abfrage->fetchColumn();
-
-	// Top Keywords
-	$nr = 1;
-	$abfrage = $conn->prepare("SELECT keyword, SUM(view) AS views FROM ".$db_prefix."Keyword GROUP BY keyword ORDER BY views DESC LIMIT 0, 10");
-	$abfrage->execute();
-	while($row = $abfrage->fetch(PDO::FETCH_ASSOC))
-	{
-		$keyword = urldecode($row['keyword']);
-		if(strlen($keyword) > 35) {
-			$shortkeyword = substr($keyword,0,30)."<a href=\"#\" title=\"$keyword\">...</a>";
-		} else {
-			$shortkeyword = $keyword;
-		}
-		$views = $row['views'];
-		$prozent = (100/$ges_keyword)*$views;
-		if ($prozent < 0.1 ) $prozent = round($prozent,2);
-		else $prozent = round($prozent,1);
-		$bar_width = round((100/$ges_keyword)*$views);
-		echo"   <tr>\n";
-		echo"       <td>$nr</td>\n";
-		echo"       <td>$shortkeyword</td>\n";
-		echo"       <td nowrap><div class=\"vbar\" style=\"width:".$bar_width."px;\" title=\"$views Visitors\" >&nbsp;$prozent%</div></td>\n";
-		echo"   </tr>\n";
-		$nr++;
-	}
-	?>	  
-    </table>
-  </div>
   <div class="middle">
-    <h3>Languages Top10</h3>
+  <h3>Top 10 Languages</h3>
 	<table width="100%" border="0" cellpadding="5" cellspacing="0">
       <tr>
-        <td width="30"><strong>Nr.</strong></td>
+        <td width="30"><strong>#</strong></td>
         <td width="280"><strong>Language</strong></td>
-        <td width="120"><strong>Prozent</strong></td>
+        <td width="120"><strong>%</strong></td>
       </tr>
 	<?php
-	// gesammt Languages
-	$abfrage = $conn->prepare("SELECT SUM(view) FROM ".$db_prefix."Language");
+	// Total Languages
+	$abfrage = $conn->prepare("SELECT SUM(view) FROM ".$db_prefix."languages");
 	$abfrage->execute();
 	$ges_language = $abfrage->fetchColumn();
 
@@ -191,21 +108,21 @@ require_once('config.php');
 
 	// Top Languages
 	$nr = 1;
-	$abfrage = $conn->prepare("SELECT language, SUM(view) AS views FROM ".$db_prefix."Language GROUP BY language ORDER BY views DESC LIMIT 0, 10");
+	$abfrage = $conn->prepare("SELECT language, SUM(view) AS views FROM ".$db_prefix."languages GROUP BY language ORDER BY views DESC LIMIT 0, 10");
 	$abfrage->execute();
 	while($row = $abfrage->fetch(PDO::FETCH_ASSOC))
 	{
 		$language = $row['language'];
 		if (array_key_exists($language, $code2lang)) $language = $code2lang[$language];
 		$views = $row['views'];
-		$prozent = (100/$ges_language)*$views;
-		if ($prozent < 0.1 ) $prozent = round($prozent,2);
-		else $prozent = round($prozent,1);
+		$percent = (100/$ges_language)*$views;
+		if ($percent < 0.1 ) $percent = round($percent,2);
+		else $percent = round($percent,1);
 		$bar_width = round((100/$ges_language)*$views);
 		echo"   <tr>\n";
 		echo"       <td>$nr</td>\n";
 		echo"       <td>$language</td>\n";
-		echo"       <td nowrap><div class=\"vbar\" style=\"width:".$bar_width."px;\" title=\"$views Visitors\" >&nbsp;$prozent%</div></td>\n";
+		echo"       <td nowrap><div class=\"vbar\" style=\"width:".$bar_width."px;\" title=\"$views Visitors\" >&nbsp;$percent%</div></td>\n";
 		echo"   </tr>\n";
 		$nr++;
 	}
@@ -213,7 +130,7 @@ require_once('config.php');
 	</table>
   </div>
   <div style="clear:both"></div>
-  <div id="footer">ChiliStats by <a href="http://www.chiliscripts.com" target="_blank" >ChiliScripts.com</a></div>
+  <div id="footer"><a href="https://github.com/KuJoe/ChiliStats/" target="_blank" ><img src="github.svg" width="24" height="24" alt="GitHub Logo" title="ChiliStats(Revived)" /></a></div>
 </div>
 </body>
 </html>

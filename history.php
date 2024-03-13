@@ -3,25 +3,34 @@ require_once('config.php');
 
 // Get Month and Year
 $time=time();
-if (is_numeric($_GET["m"]) AND $_GET["m"] >= 1 AND $_GET["m"] <= 12 ) {$show_month = $_GET["m"];} 
-else {$show_month=date("n",$time);}
-if (is_numeric($_GET["y"]) AND $_GET["y"] >= 1 AND $_GET["y"] <= 9999 ) {$show_year = $_GET["y"];} 
-else {$show_year=date("Y",$time);}
-
+if (!empty($_GET["m"])) {
+	if (is_numeric($_GET["m"]) AND $_GET["m"] >= 1 AND $_GET["m"] <= 12 ) {
+		$show_month = $_GET["m"];
+	}
+} else {
+	$show_month = date("n", $time);
+}
+if (!empty($_GET["y"])) {
+	if (is_numeric($_GET["y"]) AND $_GET["y"] >= 1 AND $_GET["y"] <= 9999 ) {
+		$show_year = $_GET["y"];
+	}
+} else {
+	$show_year = date("Y", $time);
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<title>ChiliStats - History</title>
+<title>ChiliStats(Revived) - History</title>
 <link href="chilistats.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
 <div id="container">
-<div id="logo"><h1>ChiliStats</h1></div>
+<div id="logo"><h1>ChiliStats(Revived)</h1></div>
 <div id="menu">
  <ul>
-  <li><a href="stats.php">OneView</a></li>
+  <li><a href="stats.php">Dashboard</a></li>
   <li><a href="visitors.php">Visitors</a></li>
   <li><a href="history.php">History</a></li> 
  </ul>
@@ -29,8 +38,8 @@ else {$show_year=date("Y",$time);}
   <div class="middle">
     <h3>History</h3>
 	<?PHP
-	// Gesamt Besucher ermitteln
-	$abfrage = $conn->prepare("SELECT SUM(user), SUM(view), MIN(day), AVG(user) FROM ".$db_prefix."Day");
+	// Determine total visitors
+	$abfrage = $conn->prepare("SELECT SUM(user), SUM(view), MIN(day), AVG(user) FROM ".$db_prefix."days");
 	$abfrage->execute();
 	$result = $abfrage->fetch(PDO::FETCH_NUM);
 	$visitors = $result[0];
@@ -56,10 +65,10 @@ else {$show_year=date("Y",$time);}
 	</table>
 	<br />
 	<?PHP
-	// selected Month
+	// Selected Month
 	$sel_timestamp = mktime(0, 0, 0, $show_month, 1, $show_year);
 	$sel_month = date("Y.m.%",$sel_timestamp);
-	$abfrage = $conn->prepare("SELECT SUM(user), SUM(view), AVG(user) FROM ".$db_prefix."Day WHERE day LIKE :sel_month");
+	$abfrage = $conn->prepare("SELECT SUM(user), SUM(view), AVG(user) FROM ".$db_prefix."days WHERE day LIKE :sel_month");
 	$abfrage->execute([':sel_month' => $sel_month]);
 	$result = $abfrage->fetch(PDO::FETCH_NUM);
 	$visitors = $result[0];
@@ -95,7 +104,7 @@ else {$show_year=date("Y",$time);}
 	<tr valign="bottom" height="180">
 	<?PHP
 	// Max Month
-	$abfrage = $conn->prepare("SELECT LEFT(day,7) as month, SUM(user) as user_month FROM ".$db_prefix."Day GROUP BY month ORDER BY user_month DESC LIMIT 1");
+	$abfrage = $conn->prepare("SELECT LEFT(day,7) as month, SUM(user) as user_month FROM ".$db_prefix."days GROUP BY month ORDER BY user_month DESC LIMIT 1");
 	$abfrage->execute();
 	$max_month = $abfrage->fetch(PDO::FETCH_ASSOC)['user_month'];
 	// Month query
@@ -103,7 +112,7 @@ else {$show_year=date("Y",$time);}
 	for($month = 1; $month <= 12; $month++) {
 		$sel_timestamp = mktime(0, 0, 0, $month, 1, $show_year);
 		$sel_month = date("Y.m.%", $sel_timestamp);
-		$abfrage = $conn->prepare("SELECT SUM(user) FROM ".$db_prefix."Day WHERE day LIKE :sel_month");
+		$abfrage = $conn->prepare("SELECT SUM(user) FROM ".$db_prefix."days WHERE day LIKE :sel_month");
 		$abfrage->execute([':sel_month' => $sel_month]);
 		$User = $abfrage->fetchColumn();
 
@@ -117,12 +126,12 @@ else {$show_year=date("Y",$time);}
 	for($i = 0; $i < $bar_nr; $i++) {
 		$value = $bar[$i];
 		if ($value == "") $value = 0;
-		if ($max_month > 0) {$bar_hight = round((170/$max_month)*$value);} else $bar_hight = 0;
-		if ($bar_hight == 0) $bar_hight = 1;
+		if ($max_month > 0) {$bar_height = round((170/$max_month)*$value);} else $bar_height = 0;
+		if ($bar_height == 0) $bar_height = 1;
 
 		echo "<td width=\"38\">";
 		echo "<a href=\"history.php?m=".$bar_month[$i]."&y=$show_year\">";
-		echo "<div class=\"bar\" style=\"height:".$bar_hight."px;\" title=\"".$bar_title[$i]." - $value Visitors\"></div>";
+		echo "<div class=\"bar\" style=\"height:".$bar_height."px;\" title=\"".$bar_title[$i]." - $value Visitors\"></div>";
 		echo "</a></td>\n";
 	}
 	?>
@@ -156,7 +165,7 @@ else {$show_year=date("Y",$time);}
 	for ($day = 1; $day <= $month_days; $day++) {
 	$sel_timestamp = mktime(0, 0, 0, $show_month, $day, $show_year);
 	$sel_tag = date("Y.m.d", $sel_timestamp);
-	$abfrage = $conn->prepare("SELECT SUM(user) FROM ".$db_prefix."Day WHERE day = :sel_tag");
+	$abfrage = $conn->prepare("SELECT SUM(user) FROM ".$db_prefix."days WHERE day = :sel_tag");
 	$abfrage->execute([':sel_tag' => $sel_tag]);
 	$User = $abfrage->fetchColumn();
 
@@ -168,22 +177,23 @@ else {$show_year=date("Y",$time);}
 		{
 		$value=$bar[$i];
 		if ($value == "") $value = 0;
-		if (max($bar) > 0) {$bar_hight=round((200/max($bar))*$value);} else $bar_hight = 0;
-		if ($bar_hight == 0) $bar_hight = 1;	
+		if (max($bar) > 0) {$bar_height=round((200/max($bar))*$value);} else $bar_height = 0;
+		if ($bar_height == 0) $bar_height = 1;	
 		echo "<td width=\"30\">";
-		echo "<div class=\"bar\" style=\"height:".$bar_hight."px;\" title=\"".$bar_title[$i]." - $value Visitors\"></div></td>\n";
+		$barTitle = isset($bar_title[$i]) ? $bar_title[$i] : '0';
+		echo "<div class=\"bar\" style=\"height:".$bar_height."px;\" title=\"".$barTitle." - $value Visitors\"></div></td>\n";
 		}
 	?>
     </tr><tr height="20">
-	<td colspan="6" class="timeline"><?PHP echo date("j.M",mktime(0, 0, 0, $show_month, 1, $show_yaer)); ?></td>
-	<td colspan="6" class="timeline"><?PHP echo date("j.M",mktime(0, 0, 0, $show_month, 7, $show_yaer)); ?></td>
-	<td colspan="6" class="timeline"><?PHP echo date("j.M",mktime(0, 0, 0, $show_month, 13, $show_yaer)); ?></td>
-	<td colspan="6" class="timeline"><?PHP echo date("j.M",mktime(0, 0, 0, $show_month, 19, $show_yaer)); ?></td>
-	<td colspan="7" class="timeline"><?PHP echo date("j.M",mktime(0, 0, 0, $show_month, 25, $show_yaer)); ?></td>
+	<td colspan="6" class="timeline"><?PHP echo date("j.M",mktime(0, 0, 0, $show_month, 1, $show_year)); ?></td>
+	<td colspan="6" class="timeline"><?PHP echo date("j.M",mktime(0, 0, 0, $show_month, 7, $show_year)); ?></td>
+	<td colspan="6" class="timeline"><?PHP echo date("j.M",mktime(0, 0, 0, $show_month, 13, $show_year)); ?></td>
+	<td colspan="6" class="timeline"><?PHP echo date("j.M",mktime(0, 0, 0, $show_month, 19, $show_year)); ?></td>
+	<td colspan="7" class="timeline"><?PHP echo date("j.M",mktime(0, 0, 0, $show_month, 25, $show_year)); ?></td>
 	</tr></table>
   </div>
   <div style="clear:both"></div>
-  <div id="footer">ChiliStats by <a href="http://www.chiliscripts.com" target="_blank" >ChiliScripts.com</a></div>
+  <div id="footer"><a href="https://github.com/KuJoe/ChiliStats/" target="_blank" ><img src="github.svg" width="24" height="24" alt="GitHub Logo" title="ChiliStats(Revived)" /></a></div>
 </div>
 </body>
 </html>

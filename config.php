@@ -27,16 +27,12 @@ $db_host = 'localhost'; // database server (e.g. localhost)
 $db_user = 'db_user'; // user
 $db_pass = 'db_pass'; // password
 $db_name = 'db_name';// database name
-$db_prefix = 'chilli_stats_1_'; // database prefix
+$db_prefix = 'chili_'; // database prefix
 
 
 //
 // Optional settings
 //
-
-$style = "dark"; // Counter Style "dark" or "light"
-$show = "totally"; // Counter shows "totally"  or "last24h"  visitors
-$size = "big"; // Size of the counter "small" or "big"
 
 $reload=3*60*60; // Reload lock in seconds (3 * 60 * 60 => 3 hours)
 $online=3*60; // online time in seconds (3 * 60 => 3 minutes)
