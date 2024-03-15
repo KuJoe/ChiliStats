@@ -17,7 +17,6 @@
 	-------------------------------------------------------
 */
 
-
 //
 // !! These settings must be changed
 //
@@ -28,7 +27,6 @@ $db_user = 'db_user'; // user
 $db_pass = 'db_pass'; // password
 $db_name = 'db_name';// database name
 $db_prefix = 'chili_'; // database prefix
-
 
 //
 // Optional settings

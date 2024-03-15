@@ -17,6 +17,13 @@ ChiliStats(Revived)
 	at their own risk of the operator.
 	-------------------------------------------------------
 
+ChiliStats is a basic, easy to use analytics script for tracking basic stats about your website visitors.  
+This version has been rewritten to work with PHP 8.x and give it some added features and a facelift.
+
+Demo
+------------
+https://chilistats.kujoe.net/
+
 Installation
 ------------
 

@@ -17,6 +17,11 @@
 	-------------------------------------------------------
 */
 
+$filename = 'LOCKED';
+if (file_exists($filename)) {
+    die("The directory is locked. Please delete the LOCKED file if you are sure you need to run the install.php file (this might overrite existing data in the database if it exists).");
+}
+
 require_once('config.php');
 
 try {
@@ -46,7 +51,7 @@ try {
 		'languages' => "CREATE TABLE `".$db_prefix."languages` (
             `lang_id` int(11) NOT NULL auto_increment,
             `day` varchar(10) NOT NULL default '',
-            `language` int(2) NOT NULL default '',
+            `language` varchar(2) NOT NULL default '',
             `view` int(10) NOT NULL default '0',
             PRIMARY KEY  (`lang_id`)
         )",
@@ -54,7 +59,7 @@ try {
 		'pages' => "CREATE TABLE `".$db_prefix."pages` (
             `page_id` int(11) NOT NULL auto_increment,
             `day` varchar(10) NOT NULL default '',
-            `page` var(255) NOT NULL default '',
+            `page` varchar(255) NOT NULL default '',
             `view` int(20) NOT NULL default '0',
             PRIMARY KEY  (`page_id`)
         )",
@@ -82,6 +87,13 @@ try {
     }
 } catch (PDOException $e) {
     echo "<font color=\"#CC0000\">- " . $e->getMessage() . "</font><br>";
+}
+$file = fopen('LOCKED', 'w');
+if ($file == false) {
+    echo "<font color=\"#CC0000\">- Unable to lock the directory to prevent the install.php script from being run again. Either manually create a file named <strong>LOCKED</strong> in this directory or delete the install.php to be safe.</font><br>";
+} else {
+    echo "<font color=\"#00CC00\">- Lock file created to prevent the install.php file from being run again. You can delete the install.php file just to safe.<br>";
+    fclose($file);
 }
 ?>
 <p>
