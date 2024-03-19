@@ -33,15 +33,23 @@ $month=date("Y.m",$time); // YYYY.MM
 $ip = getRealUserIp();
 
 // Get Referrer and Page
-if ($_GET["ref"] <> "" ) {
+if (isset($_GET["ref"]) ) {
 	// from javascript
 	$referer = $_GET["ref"];
-	$page = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH);	
 } else {
 	// from php
 	$referer=$_SERVER['HTTP_REFERER'];
-	$page=$_SERVER['PHP_SELF']; // with include via php		
-} 	
+}
+
+// Page
+$lastSlashPos = strrpos($referer, "/");
+
+if ($lastSlashPos !== false) {
+  $page = substr($referer, $lastSlashPos + 1);
+} else {
+  $page = "No page specified";
+}
+
 // cleanup
 if (basename($page) == basename(__FILE__)) $page="" ; // count not counter.php
 
@@ -90,9 +98,16 @@ if ($gesperrt->rowCount() == 0) {
 }
 
 // Page
-if($page <> "") {
+if(isset($page)) {
     $ergebnis = $conn->prepare("SELECT page_id FROM ".$db_prefix."pages WHERE page = :page AND day = :day");
     $ergebnis->execute([':page' => $page, ':day' => $day]);
+    if ($ergebnis->rowCount() == 0) {
+        $insert = $conn->prepare("INSERT INTO ".$db_prefix."pages (day, page, view) values (:day, :page, '1')");
+        $insert->execute([':day' => $day, ':page' => $page]);
+    } else {
+        $update = $conn->prepare("UPDATE ".$db_prefix."pages SET view = view + 1 WHERE page = :page AND day = :day");
+        $update->execute([':page' => $page, ':day' => $day]);
+    }
 }
 
 // Language 
@@ -102,8 +117,6 @@ if($language<>"" AND $newuser == 1) {
     if ($ergebnis->rowCount() == 0) {
         $insert = $conn->prepare("INSERT INTO ".$db_prefix."languages (day, language, view) VALUES (:day, :language, '1')");
         $insert->execute([':day' => $day, ':language' => $language]);
-    } else {
-        // Continue your code here...
     }
 }
 
