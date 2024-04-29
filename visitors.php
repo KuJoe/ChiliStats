@@ -33,13 +33,13 @@ $token = getCSRFToken();
   	</tr>
 	<?php
 	// Total Pages
-	$abfrage = $conn->prepare("SELECT SUM(view) FROM ".$db_prefix."pages");
+	$abfrage = $conn->prepare("SELECT SUM(view) FROM pages");
 	$abfrage->execute();
 	$ges_page = $abfrage->fetchColumn();
 
 	// Top Pages
 	$nr = 1;
-	$abfrage = $conn->prepare("SELECT page, SUM(view) AS views FROM ".$db_prefix."pages GROUP BY page ORDER BY views DESC LIMIT 0, 10");
+	$abfrage = $conn->prepare("SELECT page, SUM(view) AS views FROM pages GROUP BY page ORDER BY views DESC LIMIT 0, 10");
 	$abfrage->execute();
 	while($row = $abfrage->fetch(PDO::FETCH_ASSOC))
 	{
@@ -74,7 +74,7 @@ $token = getCSRFToken();
       </tr>
 	<?php
 	// Total Languages
-	$abfrage = $conn->prepare("SELECT SUM(view) FROM ".$db_prefix."languages");
+	$abfrage = $conn->prepare("SELECT SUM(view) FROM languages");
 	$abfrage->execute();
 	$ges_language = $abfrage->fetchColumn();
 
@@ -113,7 +113,7 @@ $token = getCSRFToken();
 
 	// Top Languages
 	$nr = 1;
-	$abfrage = $conn->prepare("SELECT language, SUM(view) AS views FROM ".$db_prefix."languages GROUP BY language ORDER BY views DESC LIMIT 0, 10");
+	$abfrage = $conn->prepare("SELECT language, SUM(view) AS views FROM languages GROUP BY language ORDER BY views DESC LIMIT 0, 10");
 	$abfrage->execute();
 	while($row = $abfrage->fetch(PDO::FETCH_ASSOC))
 	{

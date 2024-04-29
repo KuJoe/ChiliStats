@@ -33,34 +33,48 @@ function validateCSRFToken($token) {
 }
 
 function checkAdmin($staffid) {
-	if($stmt = $conn->prepare('SELECT staff_id FROM ".$db_prefix."staff" WHERE user_active = ?')) {
-		$user_active = '1';
-		$stmt->bind_param('i', $user_active);
+	$sql = "SELECT COUNT(*) FROM staff WHERE user_active = ?";
+	try {
+		$stmt = $conn->prepare($sql);
+		$stmt->bindParam(':user_active', $user_active);
+		$user_active = 1;
 		$stmt->execute();
-		$stmt->store_result();
-		if($stmt->num_rows > 0) {
+		$count = $stmt->fetchColumn();
+
+		if ($count === 0) {
 			return true;
 		} else {
 			return false;
 		}
-		$stmt->close();
+		$stmt = null;
+	} catch(PDOException $e) {
+		die("Database error: " . $e->getMessage());
 	}
-	$stmt->close();
 	return false;
 }
 
 function checkLockedOut($staffid) {
-	if($stmt = $conn->prepare('SELECT user_locked FROM ".$db_prefix."staff" WHERE staff_id = ?')) {
-		$stmt->bind_param('i', $staffid);
+	$sql = "SELECT user_locked FROM staff WHERE staff_id = ?";
+	try {
+		$stmt = $conn->prepare($sql);
+		$stmt->bindParam(':staff_id', $staffid);
 		$stmt->execute();
-		$stmt->bind_result($locked);
-		$stmt->fetch();
-		$now = date('Y-m-d H:i:s');
-		if($locked > $now) {
-			return true;
+		$locked = $stmt->fetchColumn();
+		if ($locked) {
+			$locked_datetime = DateTime::createFromFormat('Y-m-d H:i:s', $locked);
+			$now = new DateTime();
+			if ($locked_datetime > $now) {
+			  return true;
+			} else {
+			  return false;
+			}
+		} else {
+			return false;
 		}
+		$stmt = null;
+	} catch(PDOException $e) {
+		die("Database error: " . $e->getMessage());
 	}
-	$stmt->close();
 	return false;
 }
 

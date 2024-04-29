@@ -22,11 +22,7 @@
 //
 
 // Database Connection
-$db_host = 'localhost'; // database server (e.g. localhost)
-$db_user = 'db_user'; // user
-$db_pass = 'db_pass'; // password
-$db_name = 'db_name';// database name
-$db_prefix = 'chili_'; // database prefix
+$db_file_path = "stats.db";
 
 //
 // Optional settings
@@ -40,17 +36,16 @@ $oldentries=7; // delete Visitor infos after x days (7 => 7 days)
 // End of settings
 //
 
-// connect to database
 try {
-	$conn = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
-	$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  $conn = new PDO("sqlite:$db_file_path");
+  
+  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
 } catch(PDOException $e) {
-	die("Connection failed: " . $e->getMessage());
+  die("Connection failed: " . $e->getMessage());
 }
 
 // Check if database selection was successful
 if (!$conn) {
-	echo "The database '$db_name' was not found!";
 	exit;
 }
 ?>

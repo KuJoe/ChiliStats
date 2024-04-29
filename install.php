@@ -25,68 +25,60 @@ if (file_exists($filename)) {
 require_once('config.php');
 
 try {
-    // Connect to the server
-    $pdo = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    echo "<font color=\"#00CC00\">- The DB server was reached successfully!</font><br>";
+	$conn = new PDO("sqlite:$db_file_path");
+	$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	echo "<font color=\"#00CC00\">- The SQLite database connection was established successfully!</font><br>";
+	$tables = [
+	'days' => "CREATE TABLE days (
+	  day_id INTEGER PRIMARY KEY AUTOINCREMENT,
+	  day TEXT NOT NULL DEFAULT '',
+	  user INTEGER NOT NULL DEFAULT 0,
+	  view INTEGER NOT NULL DEFAULT 0
+	)",
 
-    // Create tables
-    $tables = [
-        'days' => "CREATE TABLE `".$db_prefix."days` (
-            `day_id` int(11) NOT NULL auto_increment,
-            `day` varchar(10) NOT NULL default '',
-            `user` int(10) NOT NULL default '0',
-            `view` int(10) NOT NULL default '0',
-            PRIMARY KEY  (`day_id`)
-        )",
+	'visitors' => "CREATE TABLE visitors (
+	  visitor_id INTEGER PRIMARY KEY AUTOINCREMENT,
+	  ipaddr TEXT NOT NULL DEFAULT '',
+	  time INTEGER NOT NULL DEFAULT 0,
+	  online INTEGER NOT NULL DEFAULT 0
+	)",
 
-        'visitors' => "CREATE TABLE `".$db_prefix."visitors` (
-            `visitor_id` int(11) NOT NULL auto_increment,
-            `ipaddr` varchar(45) NOT NULL default '',
-            `time` int(20) NOT NULL default '0',
-            `online` int(20) NOT NULL default '0',
-            PRIMARY KEY  (`visitor_id`)
-        )",
+	'languages' => "CREATE TABLE languages (
+	  lang_id INTEGER PRIMARY KEY AUTOINCREMENT,
+	  day TEXT NOT NULL DEFAULT '',
+	  language TEXT NOT NULL DEFAULT '',
+	  view INTEGER NOT NULL DEFAULT 0
+	)",
 
-		'languages' => "CREATE TABLE `".$db_prefix."languages` (
-            `lang_id` int(11) NOT NULL auto_increment,
-            `day` varchar(10) NOT NULL default '',
-            `language` varchar(2) NOT NULL default '',
-            `view` int(10) NOT NULL default '0',
-            PRIMARY KEY  (`lang_id`)
-        )",
+	'pages' => "CREATE TABLE pages (
+	  page_id INTEGER PRIMARY KEY AUTOINCREMENT,
+	  day TEXT NOT NULL DEFAULT '',
+	  page TEXT NOT NULL DEFAULT '',
+	  view INTEGER NOT NULL DEFAULT 0
+	)",
 
-		'pages' => "CREATE TABLE `".$db_prefix."pages` (
-            `page_id` int(11) NOT NULL auto_increment,
-            `day` varchar(10) NOT NULL default '',
-            `page` varchar(255) NOT NULL default '',
-            `view` int(20) NOT NULL default '0',
-            PRIMARY KEY  (`page_id`)
-        )",
-
-        'staff' => "CREATE TABLE `".$db_prefix."staff` (
-            `staff_id` int(11) NOT NULL auto_increment,
-            `seckey` varchar(12) NOT NULL default '',
-            `user_email` varchar(64) NOT NULL default '',
-            `user_password_hash` varchar(255) NOT NULL default '0',
-            `user_active` tinyint(1) NOT NULL default '0',
-            `user_rememberme_token` varchar(64) NOT NULL default '0',
-            `user_ip` varchar(45) NOT NULL default '0',
-            `user_lastlogin` timestamp NULL default NULL,
-            `user_failed_logins` tinyint(1) NOT NULL default '0',
-            `user_locked` datetime NOT NULL default '1970-01-01 00:00:01',
-            `unique_token` varchar(32) NULL default NULL,
-            PRIMARY KEY  (`staff_id`)
-        )"
-		
-    ];
-
-    foreach ($tables as $name => $sql) {
-        $pdo->exec($sql);
-        echo "<font color=\"#00CC00\">- Table ".$db_prefix.$name." was created successfully!<br>";
-    }
-} catch (PDOException $e) {
-    echo "<font color=\"#CC0000\">- " . $e->getMessage() . "</font><br>";
+	'staff' => "CREATE TABLE staff (
+	  staff_id INTEGER PRIMARY KEY AUTOINCREMENT,
+	  seckey TEXT NOT NULL DEFAULT '',
+	  user_email TEXT NOT NULL DEFAULT '',
+	  user_password_hash TEXT NOT NULL DEFAULT 0,
+	  user_active INTEGER NOT NULL DEFAULT 0,
+	  user_rememberme_token TEXT NOT NULL DEFAULT 0,
+	  user_ip TEXT NOT NULL DEFAULT 0,
+	  user_lastlogin TEXT NULL DEFAULT NULL,
+	  user_failed_logins INTEGER NOT NULL DEFAULT 0,
+	  user_locked DATETIME NOT NULL DEFAULT '1970-01-01 00:00:01',
+	  unique_token TEXT NULL DEFAULT NULL
+	)"
+	];
+	foreach ($tables as $name => $sql) {
+		$stmt = $conn->prepare($sql);
+		$stmt->execute();
+		echo "<font color=\"#00CC00\">- Table ".$name." was created successfully!<br>";
+	}
+  
+} catch(PDOException $e) {
+	echo "<font color=\"#CC0000\">- " . $e->getMessage() . "</font><br>";
 }
 $file = fopen('LOCKED', 'w');
 if ($file == false) {

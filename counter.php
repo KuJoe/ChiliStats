@@ -50,6 +50,10 @@ if ($lastSlashPos !== false) {
   $page = "No page specified";
 }
 
+if (empty($page)) {
+	$page = "No page specified";
+}
+
 // cleanup
 if (basename($page) == basename(__FILE__)) $page="" ; // count not counter.php
 
@@ -57,67 +61,143 @@ if (basename($page) == basename(__FILE__)) $page="" ; // count not counter.php
 $language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'],0,2);
 
 // delete old IPs
-$anfangGestern = mktime(0, 0, 0, date('n'), date('j'), date('Y')) - 48*60*60 ; // 48*60*60 => after 48 hours
-$delete = $conn->prepare("DELETE FROM ".$db_prefix."visitors WHERE time < :time");
-$delete->execute([':time' => $anfangGestern]);
+$yesterday = mktime(0, 0, 0, date('n'), date('j'), date('Y')) - 48*60*60 ; // 48*60*60 => after 48 hours
+try {
+	$sql = "DELETE FROM visitors WHERE time < ?";
+	$stmt = $conn->prepare($sql);
+	$stmt->bindParam(1, $yesterday);
+	$stmt->execute();
+	$conn->commit();
+	$stmt = null;
+} catch(PDOException $e) {
+  // Do nothing.
+}
 
 // delete old pages and languages
 $old_day=date("Y.m.d",mktime(0, 0, 0, date("n"), date("j")-$oldentries, date("Y"))); // delete older than $oldentries(config.php) days
-$delete = $conn->prepare("DELETE FROM ".$db_prefix."pages WHERE day <= :day");
-$delete->execute([':day' => $old_day]);
-$delete = $conn->prepare("DELETE FROM ".$db_prefix."languages WHERE day <= :day");
-$delete->execute([':day' => $old_day]);
+try {
+	$delete = $conn->prepare("DELETE FROM pages WHERE day <= :day");
+	$sql = "DELETE FROM pages WHERE day < ?";
+	$stmt = $conn->prepare($sql);
+	$stmt->bindParam(1, $yesterday);
+	$stmt->execute();
+	$conn->commit();
+	$stmt = null;
+} catch(PDOException $e) {
+  // Do nothing.
+}
+try {
+	$sql = "DELETE FROM languages WHERE day < ?";
+	$stmt = $conn->prepare($sql);
+	$stmt->bindParam(1, $yesterday);
+	$stmt->execute();
+	$conn->commit();
+	$stmt = null;
+} catch(PDOException $e) {
+  // Do nothing.
+}
 
 // insert a new day
-$neuerTag = $conn->prepare("SELECT day_id FROM ".$db_prefix."days WHERE day = :day");
-$neuerTag->execute([':day' => $day]);
-if ($neuerTag->rowCount() == 0) {
-    $insert = $conn->prepare("INSERT INTO ".$db_prefix."days (day, user, view) VALUES (:day, '0', '0')");
-    $insert->execute([':day' => $day]);
+$sql = "SELECT COUNT(*) FROM days WHERE day = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bindParam(1, $day);
+$stmt->execute();
+$count = $stmt->fetchColumn();
+
+if ($count === 0) {
+	$insert_sql = "INSERT INTO days (day, user, view) VALUES (?, '0', '0')";
+	$insert_stmt = $conn->prepare($insert_sql);
+	$insert_stmt->bindParam(1, $day);
+	$insert_stmt->execute();
 }
+$stmt = null;
+$insert_stmt = null;
 	
 // check reload and set online time
 $newuser=0;
 $oldreload = $time-$reload;
-$gesperrt = $conn->prepare("SELECT visitor_id FROM ".$db_prefix."visitors WHERE ipaddr = :ip AND time > :time ORDER BY visitor_id DESC LIMIT 1");
-$gesperrt->execute([':ip' => $ip, ':time' => $oldreload]);
-if ($gesperrt->rowCount() == 0) {
-    // new visitor
-    $newuser=1;
-    $insert = $conn->prepare("INSERT INTO ".$db_prefix."visitors (ipaddr, time, online) VALUES (:ip, :time, :time)");
-    $insert->execute([':ip' => $ip, ':time' => $time]);
-    $update = $conn->prepare("UPDATE ".$db_prefix."days SET user = user + 1, view = view + 1 WHERE day = :day");
-    $update->execute([':day' => $day]);
+$sql = "SELECT COUNT(*) FROM visitors WHERE ipaddr = ? AND time > ? ORDER BY visitor_id DESC LIMIT 1";
+$stmt = $conn->prepare($sql);
+$stmt->bindParam(1, $ip);
+$stmt->bindParam(2, $oldreload);
+$stmt->execute();
+$count = $stmt->fetchColumn();
+
+if ($count === 0) {
+	// New visitor
+	$newuser = 1;
+	$insert_sql = "INSERT INTO visitors (ipaddr, time, online) VALUES (?, ?, ?)";
+	$insert_stmt = $conn->prepare($insert_sql);
+	$insert_stmt->bindParam(1, $ip);
+	$insert_stmt->bindParam(2, $time);
+	$insert_stmt->bindParam(3, $time);
+	$insert_stmt->execute();
+	$update_days_sql = "UPDATE days SET user = user + 1, view = view + 1 WHERE day = ?";
 } else {
-    // reload visitor
-    $gesperrtID = $gesperrt->fetchColumn();
-    $update = $conn->prepare("UPDATE ".$db_prefix."visitors SET online = :time WHERE visitor_id = :id");
-    $update->execute([':time' => $time, ':id' => $gesperrtID]);
-    $update = $conn->prepare("UPDATE ".$db_prefix."days SET view = view + 1 WHERE day = :day");
-    $update->execute([':day' => $day]);
+	// Existing visitor (reload)
+	$update_sql = "UPDATE visitors SET online = ? WHERE visitor_id = ?";
+	$update_stmt = $conn->prepare($update_sql);
+	$update_stmt->bindParam(1, $time);
+	$update_stmt->bindParam(2, $visitor_id);
+	$update_stmt->execute();
+	$update_days_sql = "UPDATE days SET view = view + 1 WHERE day = ?";
 }
+
+// Update days table (common for both new and existing visitors)
+$update_days_stmt = $conn->prepare($update_days_sql);
+$update_days_stmt->bindParam(1, $day);
+$update_days_stmt->execute();
+$stmt = null;
+$insert_stmt = null;
+$update_stmt = null;
+$update_days_stmt = null;
 
 // Page
 if(isset($page)) {
-    $ergebnis = $conn->prepare("SELECT page_id FROM ".$db_prefix."pages WHERE page = :page AND day = :day");
-    $ergebnis->execute([':page' => $page, ':day' => $day]);
-    if ($ergebnis->rowCount() == 0) {
-        $insert = $conn->prepare("INSERT INTO ".$db_prefix."pages (day, page, view) values (:day, :page, '1')");
-        $insert->execute([':day' => $day, ':page' => $page]);
-    } else {
-        $update = $conn->prepare("UPDATE ".$db_prefix."pages SET view = view + 1 WHERE page = :page AND day = :day");
-        $update->execute([':page' => $page, ':day' => $day]);
-    }
+	$sql = "SELECT COUNT(*) FROM pages WHERE page = ? AND day = ?";
+	$stmt = $conn->prepare($sql);
+	$stmt->bindParam(1, $page);
+	$stmt->bindParam(2, $day);
+	$stmt->execute();
+	$count = $stmt->fetchColumn();
+
+	if ($count === 0) {
+		// New page
+		$insert_sql = "INSERT INTO pages (day, page, view) VALUES (?, ?, 1)";
+		$insert_stmt = $conn->prepare($insert_sql);
+		$insert_stmt->bindParam(1, $day);
+		$insert_stmt->bindParam(2, $page);
+		$insert_stmt->execute();
+	} else {
+		// Existing page (update view count)
+		$update_sql = "UPDATE pages SET view = view + 1 WHERE page_id = ?";
+		$update_stmt = $conn->prepare($update_sql);
+		$update_stmt->bindParam(1, $page_id);
+		$update_stmt->execute();
+	}
+	$stmt = null;
+	$insert_stmt = null;
+	$update_stmt = null;
 }
 
 // Language 
 if($language<>"" AND $newuser == 1) {
-    $ergebnis = $conn->prepare("SELECT lang_id from ".$db_prefix."languages WHERE language=:language");
-    $ergebnis->execute([':language' => $language]);
-    if ($ergebnis->rowCount() == 0) {
-        $insert = $conn->prepare("INSERT INTO ".$db_prefix."languages (day, language, view) VALUES (:day, :language, '1')");
-        $insert->execute([':day' => $day, ':language' => $language]);
+    $sql = "SELECT COUNT(*) FROM languages WHERE language = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(1, $language);
+    $stmt->execute();
+	$count = $stmt->fetchColumn();
+
+	if ($count === 0) {
+      // New language
+      $insert_sql = "INSERT INTO languages (day, language, view) VALUES (?, ?, 1)";
+      $insert_stmt = $conn->prepare($insert_sql);
+      $insert_stmt->bindParam(1, $day);
+      $insert_stmt->bindParam(2, $language);
+      $insert_stmt->execute();
     }
+    $stmt = null;
+    $insert_stmt = null;
 }
 
 //

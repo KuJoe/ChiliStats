@@ -1,4 +1,4 @@
-<?PHP
+<?php
 define('ChiliAllowed', TRUE);
 session_start();
 require_once('config.php');
@@ -42,11 +42,11 @@ if (!empty($_GET["y"])) {
 </div>
   <div class="middle">
     <h3>History</h3>
-	<?PHP
+	<?php
 	// Determine total visitors
-	$abfrage = $conn->prepare("SELECT SUM(user), SUM(view), MIN(day), AVG(user) FROM ".$db_prefix."days");
-	$abfrage->execute();
-	$result = $abfrage->fetch(PDO::FETCH_NUM);
+	$query = $conn->prepare("SELECT SUM(user), SUM(view), MIN(day), AVG(user) FROM days");
+	$query->execute();
+	$result = $query->fetch(PDO::FETCH_NUM);
 	$visitors = $result[0];
 	$visits = $result[1];
 	$since = $result[2];
@@ -57,69 +57,69 @@ if (!empty($_GET["y"])) {
 	?>
 	<table width="100%" border="0" cellpadding="5" cellspacing="0">
       <tr valign="top">
-	  <td colspan="4"><strong>Total since <?PHP echo $since;?></strong></td>
+	  <td colspan="4"><strong>Total since <?php echo $since;?></strong></td>
 	  </tr>
 	  <tr valign="top">
-	  <td width="30%">Visitors</td><td width="20%"><?PHP echo $visitors; ?></td>
-	  <td width="30%">Visits</td><td width="20%"><?PHP echo $visits; ?></td>
+	  <td width="30%">Visitors</td><td width="20%"><?php echo $visitors; ?></td>
+	  <td width="30%">Visits</td><td width="20%"><?php echo $visits; ?></td>
 	  </tr>
 	  <tr valign="top">
-	  <td width="30%">&Oslash; Day</td><td width="20%"><?PHP echo $total_avg; ?></td>
+	  <td width="30%">&Oslash; Day</td><td width="20%"><?php echo $total_avg; ?></td>
 	  <td width="30%">&nbsp;</td><td width="20%">&nbsp;</td>
 	  </tr>
 	</table>
 	<br />
-	<?PHP
+	<?php
 	// Selected Month
 	$sel_timestamp = mktime(0, 0, 0, $show_month, 1, $show_year);
 	$sel_month = date("Y.m.%",$sel_timestamp);
-	$abfrage = $conn->prepare("SELECT SUM(user), SUM(view), AVG(user) FROM ".$db_prefix."days WHERE day LIKE :sel_month");
-	$abfrage->execute([':sel_month' => $sel_month]);
-	$result = $abfrage->fetch(PDO::FETCH_NUM);
+	$query = $conn->prepare("SELECT SUM(user), SUM(view), AVG(user) FROM days WHERE day LIKE :sel_month");
+	$query->execute([':sel_month' => $sel_month]);
+	$result = $query->fetch(PDO::FETCH_NUM);
 	$visitors = $result[0];
 	$visits = $result[1];
 	$day_avg = round($result[2], 2);  
 	?>
 	<table width="100%" border="0" cellpadding="5" cellspacing="0">
 	  <tr valign="top">
-		<td colspan="4"><strong>Selected is <?PHP echo date("F Y",mktime(0, 0, 0, $show_month, 1, $show_year)); ?></strong></td>
+		<td colspan="4"><strong>Selected is <?php echo date("F Y",mktime(0, 0, 0, $show_month, 1, $show_year)); ?></strong></td>
 	  </tr>
 	  <tr valign="top">
-	    <td>Visitors</td><td><?PHP echo $visitors; ?></td><td>Visits</td><td><?PHP echo $visits; ?></td>
+	    <td>Visitors</td><td><?php echo $visitors; ?></td><td>Visits</td><td><?php echo $visits; ?></td>
 	  </tr>
 	  <tr valign="top">
-		<td>&Oslash; Day</td><td><?PHP echo $day_avg; ?></td><td>&nbsp;</td><td>&nbsp;</td>
+		<td>&Oslash; Day</td><td><?php echo $day_avg; ?></td><td>&nbsp;</td><td>&nbsp;</td>
 	  </tr>
     </table>
   </div>
   <div class="middle">
     <h3>
-	<?PHP 
+	<?php 
 	echo "Year ".date("Y",mktime(0, 0, 0, $show_month, 1, $show_year)); 
 	
 	$back_month=date("n",mktime(0, 0, 0, $show_month, 1, $show_year-1));
-	$back_yaer=date("Y",mktime(0, 0, 0, $show_month, 1, $show_year-1));
+	$back_year=date("Y",mktime(0, 0, 0, $show_month, 1, $show_year-1));
 	$next_month=date("n",mktime(0, 0, 0, $show_month, 1, $show_year+1));
-	$next_yaer=date("Y",mktime(0, 0, 0, $show_month, 1, $show_year+1));
+	$next_year=date("Y",mktime(0, 0, 0, $show_month, 1, $show_year+1));
 	
-	echo "<span><a href=\"history.php?m=$back_month&y=$back_yaer\"><</a>&nbsp;<a href=\"history.php?m=$next_month&y=$next_yaer\">></a></span>";
+	echo "<span><a href=\"history.php?m=$back_month&y=$back_year\"><</a>&nbsp;<a href=\"history.php?m=$next_month&y=$next_year\">></a></span>";
 	?>
 	</h3>
 	<table height="200" width="100%" cellpadding="0" cellspacing="0" align="right">
 	<tr valign="bottom" height="180">
-	<?PHP
+	<?php
 	// Max Month
-	$abfrage = $conn->prepare("SELECT LEFT(day,7) as month, SUM(user) as user_month FROM ".$db_prefix."days GROUP BY month ORDER BY user_month DESC LIMIT 1");
-	$abfrage->execute();
-	$max_month = $abfrage->fetch(PDO::FETCH_ASSOC)['user_month'];
+	$query = $conn->prepare("SELECT strftime('%Y-%m', day) AS month, SUM(user) AS user_month FROM days GROUP BY month ORDER BY user_month DESC LIMIT 1");
+	$query->execute();
+	$max_month = $query->fetch(PDO::FETCH_ASSOC)['user_month'];
 	// Month query
 	$bar_nr = 0;
 	for($month = 1; $month <= 12; $month++) {
 		$sel_timestamp = mktime(0, 0, 0, $month, 1, $show_year);
 		$sel_month = date("Y.m.%", $sel_timestamp);
-		$abfrage = $conn->prepare("SELECT SUM(user) FROM ".$db_prefix."days WHERE day LIKE :sel_month");
-		$abfrage->execute([':sel_month' => $sel_month]);
-		$User = $abfrage->fetchColumn();
+		$query = $conn->prepare("SELECT SUM(user) FROM days WHERE day LIKE :sel_month");
+		$query->execute([':sel_month' => $sel_month]);
+		$User = $query->fetchColumn();
 
 		$bar[$bar_nr] = $User; // Save in array
 		$bar_title[$bar_nr] = date("M.Y", $sel_timestamp);
@@ -141,38 +141,38 @@ if (!empty($_GET["y"])) {
 	}
 	?>
     </tr><tr height="20">
-	<td colspan="3" width="25%" class="timeline"><?PHP echo date("M.Y",mktime(0, 0, 0, 1, 1, $show_year)); ?></td>
-	<td colspan="3" width="25%" class="timeline"><?PHP echo date("M.Y",mktime(0, 0, 0, 4, 1, $show_year)); ?></td>
-	<td colspan="3" width="25%" class="timeline"><?PHP echo date("M.Y",mktime(0, 0, 0, 7, 1, $show_year)); ?></td>
-	<td colspan="3" width="25%" class="timeline"><?PHP echo date("M.Y",mktime(0, 0, 0, 10, 1, $show_year)); ?></td>
+	<td colspan="3" width="25%" class="timeline"><?php echo date("M.Y",mktime(0, 0, 0, 1, 1, $show_year)); ?></td>
+	<td colspan="3" width="25%" class="timeline"><?php echo date("M.Y",mktime(0, 0, 0, 4, 1, $show_year)); ?></td>
+	<td colspan="3" width="25%" class="timeline"><?php echo date("M.Y",mktime(0, 0, 0, 7, 1, $show_year)); ?></td>
+	<td colspan="3" width="25%" class="timeline"><?php echo date("M.Y",mktime(0, 0, 0, 10, 1, $show_year)); ?></td>
 	</tr></table>
   </div>
   <div style="clear:both"></div>
   <div class="full">
     <h3>
-	<?PHP 
+	<?php 
 	echo date("F Y",mktime(0, 0, 0, $show_month, 1, $show_year)); 
 	
 	$back_month=date("n",mktime(0, 0, 0, $show_month-1, 1, $show_year));
-	$back_yaer=date("Y",mktime(0, 0, 0, $show_month-1, 1, $show_year));
+	$back_year=date("Y",mktime(0, 0, 0, $show_month-1, 1, $show_year));
 	$next_month=date("n",mktime(0, 0, 0, $show_month+1, 1, $show_year));
-	$next_yaer=date("Y",mktime(0, 0, 0, $show_month+1, 1, $show_year));
+	$next_year=date("Y",mktime(0, 0, 0, $show_month+1, 1, $show_year));
 	
-	echo "<span><a href=\"history.php?m=$back_month&y=$back_yaer\"><</a>&nbsp;<a href=\"history.php?m=$next_month&y=$next_yaer\">></a></span>";
+	echo "<span><a href=\"history.php?m=$back_month&y=$back_year\"><</a>&nbsp;<a href=\"history.php?m=$next_month&y=$next_year\">></a></span>";
 	?>
 	</h3>
 	<table height="230" width="100%" cellpadding="0" cellspacing="0" align="right">
 	<tr valign="bottom" height="210">
-	<?PHP
+	<?php
 	// Display selected month
 	$bar_nr = 0;
 	$month_days = date('t', mktime(0, 0, 0, $show_month, 1, $show_year));
 	for ($day = 1; $day <= $month_days; $day++) {
 	$sel_timestamp = mktime(0, 0, 0, $show_month, $day, $show_year);
 	$sel_tag = date("Y.m.d", $sel_timestamp);
-	$abfrage = $conn->prepare("SELECT SUM(user) FROM ".$db_prefix."days WHERE day = :sel_tag");
-	$abfrage->execute([':sel_tag' => $sel_tag]);
-	$User = $abfrage->fetchColumn();
+	$query = $conn->prepare("SELECT SUM(user) FROM days WHERE day = :sel_tag");
+	$query->execute([':sel_tag' => $sel_tag]);
+	$User = $query->fetchColumn();
 
 	$bar[$bar_nr] = $User; // Save in array
 	$bar_nr++;
@@ -190,11 +190,11 @@ if (!empty($_GET["y"])) {
 		}
 	?>
     </tr><tr height="20">
-	<td colspan="6" class="timeline"><?PHP echo date("j.M",mktime(0, 0, 0, $show_month, 1, $show_year)); ?></td>
-	<td colspan="6" class="timeline"><?PHP echo date("j.M",mktime(0, 0, 0, $show_month, 7, $show_year)); ?></td>
-	<td colspan="6" class="timeline"><?PHP echo date("j.M",mktime(0, 0, 0, $show_month, 13, $show_year)); ?></td>
-	<td colspan="6" class="timeline"><?PHP echo date("j.M",mktime(0, 0, 0, $show_month, 19, $show_year)); ?></td>
-	<td colspan="7" class="timeline"><?PHP echo date("j.M",mktime(0, 0, 0, $show_month, 25, $show_year)); ?></td>
+	<td colspan="6" class="timeline"><?php echo date("j.M",mktime(0, 0, 0, $show_month, 1, $show_year)); ?></td>
+	<td colspan="6" class="timeline"><?php echo date("j.M",mktime(0, 0, 0, $show_month, 7, $show_year)); ?></td>
+	<td colspan="6" class="timeline"><?php echo date("j.M",mktime(0, 0, 0, $show_month, 13, $show_year)); ?></td>
+	<td colspan="6" class="timeline"><?php echo date("j.M",mktime(0, 0, 0, $show_month, 19, $show_year)); ?></td>
+	<td colspan="7" class="timeline"><?php echo date("j.M",mktime(0, 0, 0, $show_month, 25, $show_year)); ?></td>
 	</tr></table>
   </div>
   <div style="clear:both"></div>
