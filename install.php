@@ -19,10 +19,24 @@
 
 $filename = 'LOCKED';
 if (file_exists($filename)) {
-    die("The directory is locked. Please delete the LOCKED file if you are sure you need to run the install.php file (this might overrite existing data in the database if it exists).");
+    die("The directory is locked. Please delete the LOCKED file if you are sure you need to run the install.php file (this might overwrite existing data in the database if it exists).");
 }
 
 require_once('config.php');
+
+function generateRandomString($length = 16) {
+  $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  $charactersLength = strlen($characters);
+  $randomString = '';
+  for ($i = 0; $i < $length; $i++) {
+    $randomString .= $characters[rand(0, $charactersLength - 1)];
+  }
+  return $randomString;
+}
+
+$username = "admin";
+$password = generateRandomString();
+$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
 try {
 	$conn = new PDO("sqlite:$db_file_path");
@@ -58,17 +72,18 @@ try {
 	)",
 
 	'staff' => "CREATE TABLE staff (
-	  staff_id INTEGER PRIMARY KEY AUTOINCREMENT,
-	  seckey TEXT NOT NULL DEFAULT '',
-	  user_email TEXT NOT NULL DEFAULT '',
-	  user_password_hash TEXT NOT NULL DEFAULT 0,
-	  user_active INTEGER NOT NULL DEFAULT 0,
-	  user_rememberme_token TEXT NOT NULL DEFAULT 0,
-	  user_ip TEXT NOT NULL DEFAULT 0,
-	  user_lastlogin TEXT NULL DEFAULT NULL,
-	  user_failed_logins INTEGER NOT NULL DEFAULT 0,
-	  user_locked DATETIME NOT NULL DEFAULT '1970-01-01 00:00:01',
-	  unique_token TEXT NULL DEFAULT NULL
+		staff_id INTEGER PRIMARY KEY AUTOINCREMENT,
+		staff_username TEXT NOT NULL DEFAULT '',
+		staff_email TEXT NOT NULL DEFAULT '',
+		staff_password TEXT NOT NULL DEFAULT 0,
+		staff_active INTEGER NOT NULL DEFAULT 0,
+		staff_rememberme_token TEXT NOT NULL DEFAULT 0,
+		seckey TEXT NOT NULL DEFAULT '',
+		staff_ip TEXT NOT NULL DEFAULT 0,
+		staff_lastlogin TEXT NULL DEFAULT NULL,
+		staff_failed_logins INTEGER NOT NULL DEFAULT 0,
+		staff_locked DATETIME NOT NULL DEFAULT '1970-01-01 00:00:01',
+		unique_token TEXT NULL DEFAULT NULL
 	)"
 	];
 	foreach ($tables as $name => $sql) {
@@ -76,6 +91,13 @@ try {
 		$stmt->execute();
 		echo "<font color=\"#00CC00\">- Table ".$name." was created successfully!<br>";
 	}
+	$sql = "INSERT INTO staff (staff_username, staff_password) VALUES (:username, :password)";
+	$stmt = $conn->prepare($sql);
+	$stmt->bindParam(':username', $username);
+	$stmt->bindParam(':password', $hashedPassword);
+	$stmt->execute();
+	echo "Username: " . $username . "<br />";
+	echo "Password: " . $password . "<br />";
   
 } catch(PDOException $e) {
 	echo "<font color=\"#CC0000\">- " . $e->getMessage() . "</font><br>";

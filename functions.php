@@ -32,12 +32,12 @@ function validateCSRFToken($token) {
     return false;
 }
 
-function checkAdmin($staffid) {
-	$sql = "SELECT COUNT(*) FROM staff WHERE user_active = ?";
+function checkAdmin($staff_id) {
+	$sql = "SELECT COUNT(*) FROM staff WHERE staff_active = ?";
 	try {
 		$stmt = $conn->prepare($sql);
-		$stmt->bindParam(':user_active', $user_active);
-		$user_active = 1;
+		$stmt->bindParam(':staff_active', $staff_active);
+		$staff_active = 1;
 		$stmt->execute();
 		$count = $stmt->fetchColumn();
 
@@ -53,11 +53,11 @@ function checkAdmin($staffid) {
 	return false;
 }
 
-function checkLockedOut($staffid) {
-	$sql = "SELECT user_locked FROM staff WHERE staff_id = ?";
+function checkLockedOut($staff_id) {
+	$sql = "SELECT staff_locked FROM staff WHERE staff_id = ?";
 	try {
 		$stmt = $conn->prepare($sql);
-		$stmt->bindParam(':staff_id', $staffid);
+		$stmt->bindParam(':staff_id', $staff_id);
 		$stmt->execute();
 		$locked = $stmt->fetchColumn();
 		if ($locked) {

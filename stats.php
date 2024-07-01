@@ -1,8 +1,13 @@
-<?PHP
-define('ChiliAllowed', TRUE);
+<?php
 session_start();
-require_once('config.php');
-require_once('functions.php');
+if (!isset($_SESSION['staff_id'])) {
+  header("Location: index.php");
+  exit;
+} else {
+	define('ChiliAllowed', TRUE);
+	require_once('config.php');
+	require_once('functions.php');
+}
 
 $token = getCSRFToken();
 ?>
@@ -22,7 +27,8 @@ $token = getCSRFToken();
 	<ul>
 		<li><a href="stats.php">Dashboard</a></li>
 		<li><a href="visitors.php">Visitors</a></li>
-		<li><a href="history.php">History</a></li> 
+		<li><a href="history.php">History</a></li>
+		<li><a href="logout.php">Logout</a></li>
 	</ul>
 </div>
   <div class="middle">

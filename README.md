@@ -22,7 +22,9 @@ This version has been rewritten to work with PHP 8.x and give it some added feat
 
 Demo
 ------------
-https://chilistats.kujoe.net/
+https://chilistats.kujoe.net/  
+
+Username/Password: admin/admin
 
 Installation
 ------------
