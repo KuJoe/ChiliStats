@@ -42,15 +42,17 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
+  <title>ChiliStats(Revived) - Website Analytics</title>
+  <meta name="description" content="ChiliStats(Revived) -  A simple, robust PHP script for tracking website visitor statistics and analytics.">
   <link rel="stylesheet" href="login.css">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
   <div class="container">
 	<?php if ($errorMessage) { ?>
 		<p style="color: red;"><?php echo $errorMessage; ?></p>
 	<?php } ?>
-    <h1>Login</h1>
+    <img src="logo.png" alt="ChiliStats Logo" style="display:block;margin:auto;height:128px;width:auto;" />
     <form action="" method="post"> <label for="username">Username:</label>
       <input type="text" name="username" id="username" required>
       <label for="password">Password:</label>

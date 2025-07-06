@@ -33,11 +33,13 @@ if (!empty($_GET["y"])) {
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <title>ChiliStats(Revived) - History</title>
+<meta name="description" content="ChiliStats(Revived) -  A simple, robust PHP script for tracking website visitor statistics and analytics.">
 <link href="chilistats.css" rel="stylesheet" type="text/css" />
+<link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
 <div id="container">
-<div id="logo"><h1>ChiliStats(Revived)</h1></div>
+<div><img src="logo.png" alt="ChiliStats Logo" style="height:64px;width:auto;margin-bottom:-50px;" /></div>
 <div id="menu">
  <ul>
   <li><a href="stats.php">Dashboard</a></li>

@@ -18,7 +18,7 @@
 */
 
 //
-// !! These settings must be changed
+// !! Important settings
 //
 
 // Database Connection
