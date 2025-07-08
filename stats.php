@@ -24,12 +24,12 @@ $token = getCSRFToken();
 <div id="container">
 <div><img src="logo.png" alt="ChiliStats Logo" style="height:64px;width:auto;margin-bottom:-50px;" /></div>
 <div id="menu">
- <ul>
-  <li><a href="stats.php">Dashboard</a></li>
-  <li><a href="visitors.php">Visitors</a></li>
-  <li><a href="history.php">History</a></li>
-  <li><a href="logout.php">Logout</a></li>
- </ul>
+	<ul>
+		<li><a href="stats.php">Dashboard</a></li>
+		<li><a href="visitors.php">Visitors</a></li>
+		<li><a href="history.php">History</a></li>
+		<li><a href="logout.php">Logout</a></li>
+	</ul>
 </div>
   <div class="middle">
     <h3>Dashboard</h3>
@@ -83,7 +83,7 @@ $token = getCSRFToken();
 
 			echo "<td>Bounce</td><td>".round(($onepage/$total)*100,2)."%</td>\n";
 
-			// Page/User and 7 days average
+			// Page/User and 7 day average
 			$from_day = date("Y.m.d", $time  -(7*24*60*60));
 			$to_day = date("Y.m.d", $time  - (24*60*60)); // <= without today
 			$abfrage = $conn->prepare("SELECT AVG(user), (SUM(view)/SUM(user)) FROM days WHERE day >= :from_day AND day <= :to_day");
@@ -100,15 +100,15 @@ $token = getCSRFToken();
 		</tr>
 		<tr valign="top">
 			<?php
-			echo "<td>&Oslash; 7 days</td>\n";
+			echo "<td>7 Day Average</td>\n";
 			echo "<td>$avg_7</td>\n";
-			// 30 days average
+			// 30 day average
 			$from_day = date("Y.m.d", $time -(30*24*60*60));
 			$to_day = date("Y.m.d", $time - (24*60*60)); // <= without today
 			$abfrage = $conn->prepare("SELECT AVG(user) FROM days WHERE day >= :from_day AND day <= :to_day");
 			$abfrage->execute([':from_day' => $from_day, ':to_day' => $to_day]);
 			$avg_30 = round($abfrage->fetchColumn(), 2);
-			echo "<td>&Oslash; 30 days</td>\n";
+			echo "<td>30 Day Average</td>\n";
 			echo "<td>$avg_30</td>\n";
 			?>
 		</tr>

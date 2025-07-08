@@ -72,7 +72,7 @@ if (!empty($_GET["y"])) {
 	  <td width="30%">Visits</td><td width="20%"><?php echo $visits; ?></td>
 	  </tr>
 	  <tr valign="top">
-	  <td width="30%">&Oslash; Day</td><td width="20%"><?php echo $total_avg; ?></td>
+	  <td width="30%">Daily Average</td><td width="20%"><?php echo $total_avg; ?></td>
 	  <td width="30%">&nbsp;</td><td width="20%">&nbsp;</td>
 	  </tr>
 	</table>
@@ -96,7 +96,7 @@ if (!empty($_GET["y"])) {
 	    <td>Visitors</td><td><?php echo $visitors; ?></td><td>Visits</td><td><?php echo $visits; ?></td>
 	  </tr>
 	  <tr valign="top">
-		<td>&Oslash; Day</td><td><?php echo $day_avg; ?></td><td>&nbsp;</td><td>&nbsp;</td>
+		<td>Average Per Day</td><td><?php echo $day_avg; ?></td><td>&nbsp;</td><td>&nbsp;</td>
 	  </tr>
     </table>
   </div>

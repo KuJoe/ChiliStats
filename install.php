@@ -72,18 +72,18 @@ try {
 	)",
 
 	'staff' => "CREATE TABLE staff (
-		staff_id INTEGER PRIMARY KEY AUTOINCREMENT,
-		staff_username TEXT NOT NULL DEFAULT '',
-		staff_email TEXT NOT NULL DEFAULT '',
-		staff_password TEXT NOT NULL DEFAULT 0,
-		staff_active INTEGER NOT NULL DEFAULT 0,
-		staff_rememberme_token TEXT NOT NULL DEFAULT 0,
-		seckey TEXT NOT NULL DEFAULT '',
-		staff_ip TEXT NOT NULL DEFAULT 0,
-		staff_lastlogin TEXT NULL DEFAULT NULL,
-		staff_failed_logins INTEGER NOT NULL DEFAULT 0,
-		staff_locked DATETIME NOT NULL DEFAULT '1970-01-01 00:00:01',
-		unique_token TEXT NULL DEFAULT NULL
+	  staff_id INTEGER PRIMARY KEY AUTOINCREMENT,
+	  staff_username TEXT NOT NULL DEFAULT '',
+	  staff_email TEXT NOT NULL DEFAULT '',
+	  staff_password TEXT NOT NULL DEFAULT 0,
+	  staff_active INTEGER NOT NULL DEFAULT 0,
+	  staff_rememberme_token TEXT NOT NULL DEFAULT 0,
+	  seckey TEXT NOT NULL DEFAULT '',
+	  staff_ip TEXT NOT NULL DEFAULT 0,
+	  staff_lastlogin TEXT NULL DEFAULT NULL,
+	  staff_failed_logins INTEGER NOT NULL DEFAULT 0,
+	  staff_locked DATETIME NOT NULL DEFAULT '1970-01-01 00:00:01',
+	  unique_token TEXT NULL DEFAULT NULL
 	)"
 	];
 	foreach ($tables as $name => $sql) {
